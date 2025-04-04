@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Inventory App - Full Packing Inventory</title>
+  <style>
+    :root {
+      --main-bg: #121212;
+      --sidebar-bg: #1e1e1e;
+      --content-bg: #181818;
+      --primary-color: #bb86fc;
+      --accent-color: #03dac6;
+      --danger-color: #cf6679;
+      --warning-color: #f9a825;
+      --text-color: #e0e0e0;
+      --btn-bg: #333;
+      --btn-hover: #444;
+    }
+    /* Global Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+    body {
+      background-color: var(--main-bg);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* ---------- Login Screen ---------- */
+    #login-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: var(--main-bg);
+    }
+    #login-box {
+      background-color: var(--content-bg);
+      padding: 2rem;
+      border: 1px solid #555;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    #login-box h2 {
+      margin-bottom: 1rem;
+      color: var(--primary-color);
+    }
+    .login-field {
+      margin-bottom: 0.75rem;
+    }
+    .login-field label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: 600;
+    }
+    .login-field input {
+      width: 200px;
+      padding: 0.4rem;
+      border: 1px solid #555;
+      border-radius: 4px;
+      background-color: #222;
+      color: var(--text-color);
+    }
+    #login-btn {
+      padding: 0.5rem 1rem;
+      background-color: var(--btn-bg);
+      border: none;
+      border-radius: 4px;
+      color: var(--text-color);
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    #login-btn:hover {
+      background-color: var(--btn-hover);
+    }
+    #login-message {
+      margin-top: 0.75rem;
+    }
+    /* ---------- App Layout ---------- */
+    #app-content {
+      display: none;
+      flex: 1;
+      height: 100vh;
+    }
+    .container {
+      display: flex;
+      flex: 1;
+    }
+    /* ---------- Sidebar ---------- */
+    .sidebar {
+      background-color: var(--sidebar-bg);
+      width: 240px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar h2 {
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+    .sidebar .nav-button {
+      background-color: var(--btn-bg);
+      color: var(--text-color);
+      padding: 0.5rem 1rem;
+      margin-bottom: 0.5rem;
+      border: none;
+      border-radius: 4px;
+      text-align: left;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .sidebar .nav-button:hover,
+    .sidebar .nav-button.active {
+      background-color: var(--btn-hover);
+    }
+    /* ---------- Main Content Area ---------- */
+    .main-area {
+      flex: 1;
+      background-color: var(--content-bg);
+      padding: 1rem 2rem;
+      overflow-y: auto;
+    }
+    .content {
+      display: none;
+    }
+    .content.active {
+      display: block;
+    }
+    /* ---------- Home Overview Accordion ---------- */
+    .accordion {
+      margin: 1rem 0;
+    }
+    .accordion-item {
+      background-color: var(--content-bg);
+      border: 1px solid #555;
+      margin-bottom: 0.5rem;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .accordion-header {
+      padding: 0.8rem 1rem;
+      background-color: var(--btn-bg);
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .accordion-header:hover {
+      background-color: var(--btn-hover);
+    }
+    .accordion-header.active {
+      background-color: var(--btn-hover);
+    }
+    .accordion-content {
+      display: none;
+      padding: 1rem;
+      border-top: 1px solid #555;
+    }
+    .accordion-content table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .accordion-content th,
+    .accordion-content td {
+      border: 1px solid #444;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    .accordion-content th {
+      background-color: var(--card-bg);
+      color: var(--primary-color);
+    }
+    /* ---------- Request Panel Styles ---------- */
+    .request-panel .category-button {
+      background-color: var(--btn-bg);
+      color: var(--text-color);
+      padding: 0.7rem 1rem;
+      margin: 0.3rem;
+      border: 1px solid #555;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+      display: inline-block;
+    }
+    .request-panel .category-button:hover {
+      background-color: var(--btn-hover);
+      transform: scale(1.05);
+    }
+    .request-panel .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    .request-panel .data-table th,
+    .request-panel .data-table td {
+      border: 1px solid #555;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    .request-panel .data-table th {
+      background-color: var(--card-bg);
+      color: var(--primary-color);
+    }
+    .request-panel .input-area input {
+      padding: 0.5rem;
+      margin-right: 0.5rem;
+      width: 60px;
+    }
+    /* ---------- Admin Panel Styles ---------- */
+    .admin-section {
+      margin-top: 1rem;
+    }
+    .admin-section h3 {
+      color: var(--primary-color);
+    }
+    .inventory-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+    .inventory-table th,
+    .inventory-table td {
+      border: 1px solid #555;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    .inventory-table th {
+      background-color: var(--card-bg);
+      color: var(--primary-color);
+    }
+    .new-item-form input {
+      padding: 0.5rem;
+      margin-right: 0.5rem;
+      width: 150px;
+    }
+    /* ---------- My Requests Section (Heathrow) ---------- */
+    .my-requests {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border: 1px solid #555;
+      border-radius: 4px;
+    }
+    .my-requests h3 {
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+    }
+    .my-requests .request-entry {
+      padding: 0.3rem 0;
+      border-bottom: 1px solid #444;
+    }
+    /* ---------- Responsive ---------- */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-around;
+      }
+      .main-area { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="login-screen">
+    <div id="login-box">
+      <h2>Login</h2>
+      <div class="login-field">
+        <label for="username-input">Username</label>
+        <input type="text" id="username-input" />
+      </div>
+      <div class="login-field">
+        <label for="password-input">Password</label>
+        <input type="password" id="password-input" />
+      </div>
+      <button id="login-btn" class="btn">Login</button>
+      <div id="login-message"></div>
+    </div>
+  </div>
+
+  <!-- App Content -->
+  <div id="app-content">
+    <div class="container">
+      <!-- Sidebar Navigation -->
+      <div class="sidebar">
+        <h2>Navigation</h2>
+        <button class="nav-button active" data-tab="home">Home</button>
+        <button class="nav-button" data-tab="request">Request Items</button>
+        <button class="nav-button" data-tab="fulfillment">Request Fulfillment</button>
+        <button class="nav-button" data-tab="admin">Admin Panel</button>
+        <button class="nav-button" id="logout-btn">Logout</button>
+      </div>
+      <!-- Main Area -->
+      <div class="main-area">
+        <!-- Home Overview -->
+        <div id="home" class="content active">
+          <h1>Inventory Overview</h1>
+          <div id="overview-container">
+            <!-- Accordions injected here -->
+          </div>
+        </div>
+        <!-- Request Items Panel -->
+        <div id="request" class="content">
+          <h1>Request Items</h1>
+          <div class="request-panel">
+            <div id="request-category-buttons" class="category-buttons"></div>
+            <div id="request-items-section" class="hidden">
+              <h3>Selected Category: <span id="request-category-label"></span></h3>
+              <input type="text" id="request-search" placeholder="Search items..." />
+              <h3>Select an Item</h3>
+              <div id="request-item-table-container"></div>
+            </div>
+            <div id="request-form-section" class="hidden">
+              <h3>Request: <span id="request-item-label"></span></h3>
+              <img id="item-image" src="" alt="Item Image" style="max-width:300px; display:none;"/>
+              <div class="input-area">
+                <input type="number" id="request-quantity" min="1" step="1" value="1" />
+                <button class="btn" id="request-submit-btn">Submit Request</button>
+              </div>
+              <div id="request-message"></div>
+            </div>
+            <div id="my-requests" class="my-requests hidden">
+              <h3>My Requests</h3>
+              <div id="my-requests-container">
+                <!-- My requests injected here -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Request Fulfillment Panel (Admin Only) -->
+        <div id="fulfillment" class="content">
+          <h1>Request Fulfillment</h1>
+          <div id="fulfillment-container">
+            <!-- Requests injected here -->
+          </div>
+        </div>
+        <!-- Admin Panel -->
+        <div id="admin" class="content">
+          <h1>Admin Panel</h1>
+          <p>Select a category below to adjust inventory and view requests.</p>
+          <div id="admin-category-container" class="admin-section"></div>
+          <div id="admin-details" class="admin-section hidden">
+            <h3>Adjust Inventory for <span id="admin-category-name"></span></h3>
+            <div id="admin-table-container">
+              <!-- Editable table injected here -->
+            </div>
+            <h3>Add New Item</h3>
+            <div class="new-item-form">
+              <input type="text" id="new-item-name" placeholder="Item Name" />
+              <input type="number" id="new-item-stock" placeholder="Initial Stock" min="0" step="1" value="0" />
+              <button class="btn" id="add-item-btn">Add Item</button>
+            </div>
+            <div id="admin-message"></div>
+            <button class="btn" id="save-admin-btn">Save Adjustments</button>
+          </div>
+          <div id="admin-requests" class="admin-section">
+            <h3>All Requests (Admin Overview)</h3>
+            <div id="requests-management">
+              <!-- List of requests injected here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Image Dictionaries ---
+    const DRINK_IMAGES = {
+      "Diet Coke": "https://via.placeholder.com/300x200?text=Diet+Coke",
+      "Coke": "https://via.placeholder.com/300x200?text=Coke",
+      "Water": "https://via.placeholder.com/300x200?text=Water",
+      "Sparkling Water": "https://via.placeholder.com/300x200?text=Sparkling+Water",
+      "Champagne": "https://via.placeholder.com/300x200?text=Champagne"
+    };
+    const BAG_IMAGES = {};
+    const BOX_IMAGES = {};
+
+    // --- Persist Requests via localStorage ---
+    function loadRequests() {
+      const s = localStorage.getItem("js_requests_data_v2");
+      return s ? JSON.parse(s) : [];
+    }
+    function saveRequests(requests) {
+      localStorage.setItem("js_requests_data_v2", JSON.stringify(requests));
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      // --- Global Variables ---
+      let currentUserRole = null;
+      let currentAdminCategory = null;
+      let currentRequestCategory = null;
+      let currentRequestItem = null;
+      let requests = loadRequests();
+
+      // --- Credentials ---
+      const VALID_CREDENTIALS = [
+        { username: "Heathrow", password: "HeathrowT2", role: "heathrow" },
+        { username: "Arvind", password: "Arvind", role: "arvind" }
+      ];
+
+      // --- DOM Elements ---
+      const loginScreen = document.getElementById("login-screen");
+      const appContent = document.getElementById("app-content");
+      const loginBtn = document.getElementById("login-btn");
+      const loginMessage = document.getElementById("login-message");
+      const logoutBtn = document.getElementById("logout-btn");
+      const overviewContainer = document.getElementById("overview-container");
+      const adminCategoryContainer = document.getElementById("admin-category-container");
+      const adminDetails = document.getElementById("admin-details");
+      const adminCategoryName = document.getElementById("admin-category-name");
+      const adminTableContainer = document.getElementById("admin-table-container");
+      const adminMessage = document.getElementById("admin-message");
+      const saveAdminBtn = document.getElementById("save-admin-btn");
+      const addItemBtn = document.getElementById("add-item-btn");
+      const requestCategoryButtons = document.getElementById("request-category-buttons");
+      const requestItemsSection = document.getElementById("request-items-section");
+      const requestCategoryLabel = document.getElementById("request-category-label");
+      const requestItemTableContainer = document.getElementById("request-item-table-container");
+      const requestFormSection = document.getElementById("request-form-section");
+      const requestItemLabel = document.getElementById("request-item-label");
+      const requestQuantityInput = document.getElementById("request-quantity");
+      const requestSubmitBtn = document.getElementById("request-submit-btn");
+      const requestMessage = document.getElementById("request-message");
+      const itemImage = document.getElementById("item-image");
+      const fulfillmentContainer = document.getElementById("fulfillment-container");
+      const requestsManagementContainer = document.getElementById("requests-management");
+      const myRequestsContainer = document.getElementById("my-requests-container");
+      const myRequestsSection = document.getElementById("my-requests");
+
+      // --- Inventory Data from CSV ---
+      let inventory = {
+        "Packing - Bags": {
+          "ANONYMOUS BAG 03": 0,
+          "ANONYMOUS BAG 04": 0,
+          "CLASSIC BAG 02": 4,
+          "CLASSIC BAG 03": 17,
+          "CLASSIC BAG 04": 5,
+          "CLASSIC BAG 05": 1,
+          "CLASSIC BAG 06": 11,
+          "CLASSIC BAG 14": 8
+        },
+        "Packing - Boxes": {
+          "CLASSIC BOX 02": 1,
+          "CLASSIC BOX 03": 2,
+          "CLASSIC BOX 04": 2,
+          "CLASSIC BOX 05": 3,
+          "CLASSIC BOX 06": 0,
+          "CLASSIC BOX 10": 3,
+          "CLASSIC BOX 12": 0,
+          "CLASSIC BOX 13": 2,
+          "CLASSIC BOX 16": 0,
+          "CLASSIC BOX FASHION JEWELRY": 9,
+          "LADY BOX LARGE": 3,
+          "LADY BOX MEDIUM": 1,
+          "LADY BOX SMALL": 4,
+          "MITZAH BOX": 0,
+          "WELCOME NOTE CARD + ENVELOPE": 0
+        },
+        "Packing - Ribbons": {
+          "CLASSIC RIBBON 01": 5,
+          "CLASSIC RIBBON 02": 3,
+          "CLASSIC RIBBON 03": 1
+        },
+        "Packing - Others": {
+          "CLASSIC SCARF ENVELOPE": 21,
+          "CLASSIC SHOPIN ENVELOPES": 0,
+          "CLASSIC STAR CHARM": 0,
+          "CLASSIC STICKER": 2,
+          "CLASSIC WRAPPING TISSUE PAPER 02": 0
+        },
+        "Drinks": {
+          "Water": 1,
+          "Sparkling Water": 2,
+          "Champagne": 2,
+          "Diet Coke": 1,
+          "Staff Water": 6,
+          "Coke": 1
+        },
+        "Stationery": {
+          "BLUE INK (2 Cartridges)": 1,
+          "YELLOW INK (2 Cartridges)": 1,
+          "MAGENTA INK (2 Cartridges)": 1,
+          "BLACK INK (3 Cartridges)": 1,
+          "BLACK INK (1 Cartridge)": 1,
+          "A4 Envelopes (1 Box of 250)": 1
+        }
+      };
+
+      // --- Helper: Clear Expired Requests (24 hours) ---
+      function clearExpiredRequests() {
+        const now = Date.now();
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+        requests = requests.filter(r => (now - r.timestampMs) < ONE_DAY_MS);
+        saveRequests(requests);
+      }
+      setInterval(clearExpiredRequests, 60 * 1000);
+
+      // --- Helper: Create Accordion for Home Overview ---
+      function createAccordion(category, data) {
+        const item = document.createElement("div");
+        item.className = "accordion-item";
+        const header = document.createElement("div");
+        header.className = "accordion-header";
+        header.textContent = category;
+        header.addEventListener("click", function() {
+          header.classList.toggle("active");
+          content.style.display = (content.style.display === "block") ? "none" : "block";
+        });
+        item.appendChild(header);
+        const content = document.createElement("div");
+        content.className = "accordion-content";
+        const table = document.createElement("table");
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        const thItem = document.createElement("th");
+        thItem.textContent = "Item";
+        const thStock = document.createElement("th");
+        thStock.textContent = "Stock";
+        headerRow.appendChild(thItem);
+        headerRow.appendChild(thStock);
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+        const tbody = document.createElement("tbody");
+        for (let itemName in data) {
+          if (currentUserRole === "heathrow" && data[itemName] === 0) continue;
+          const tr = document.createElement("tr");
+          const tdName = document.createElement("td");
+          tdName.textContent = itemName;
+          const tdStock = document.createElement("td");
+          tdStock.textContent = data[itemName];
+          tr.appendChild(tdName);
+          tr.appendChild(tdStock);
+          tbody.appendChild(tr);
+        }
+        table.appendChild(tbody);
+        content.appendChild(table);
+        item.appendChild(content);
+        return item;
+      }
+      
+      // --- Render Home Overview ---
+      function renderHomeOverview() {
+        clearExpiredRequests();
+        overviewContainer.innerHTML = "<h2>Categories</h2>";
+        for (let cat in inventory) {
+          const accordion = createAccordion(cat, inventory[cat]);
+          overviewContainer.appendChild(accordion);
+        }
+      }
+      
+      // --- Request Panel ---
+      function renderRequestCategories() {
+        requestCategoryButtons.innerHTML = "";
+        for (let cat in inventory) {
+          const btn = document.createElement("div");
+          btn.className = "category-button";
+          btn.textContent = cat;
+          btn.addEventListener("click", () => {
+            currentRequestCategory = cat;
+            currentRequestItem = null;
+            requestItemsSection.classList.remove("hidden");
+            requestCategoryLabel.textContent = cat;
+            requestFormSection.classList.add("hidden");
+            renderRequestItemTable(cat);
+          });
+          requestCategoryButtons.appendChild(btn);
+        }
+      }
+      function renderRequestItemTable(cat) {
+        requestItemTableContainer.innerHTML = "";
+        const table = document.createElement("table");
+        table.className = "data-table";
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        const thItem = document.createElement("th");
+        thItem.textContent = "Item";
+        const thStock = document.createElement("th");
+        thStock.textContent = "Stock";
+        headerRow.appendChild(thItem);
+        headerRow.appendChild(thStock);
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+        const tbody = document.createElement("tbody");
+        const itemsObj = inventory[cat];
+        for (let itemName in itemsObj) {
+          const stock = itemsObj[itemName];
+          if (currentUserRole === "heathrow" && stock === 0) continue;
+          const tr = document.createElement("tr");
+          tr.addEventListener("click", () => {
+            currentRequestItem = itemName;
+            requestFormSection.classList.remove("hidden");
+            requestItemLabel.textContent = itemName;
+            let imageURL = "";
+            if (DRINK_IMAGES[itemName]) imageURL = DRINK_IMAGES[itemName];
+            else if (BAG_IMAGES[itemName]) imageURL = BAG_IMAGES[itemName];
+            else if (BOX_IMAGES[itemName]) imageURL = BOX_IMAGES[itemName];
+            if (imageURL) {
+              itemImage.src = imageURL;
+              itemImage.style.display = "block";
+            } else {
+              itemImage.style.display = "none";
+            }
+          });
+          const tdItem = document.createElement("td");
+          tdItem.textContent = itemName;
+          const tdStock = document.createElement("td");
+          tdStock.textContent = stock;
+          tr.appendChild(tdItem);
+          tr.appendChild(tdStock);
+          tbody.appendChild(tr);
+        }
+        table.appendChild(tbody);
+        requestItemTableContainer.appendChild(table);
+      }
+      requestSubmitBtn.addEventListener("click", () => {
+        const qty = parseInt(requestQuantityInput.value, 10);
+        requestMessage.textContent = "";
+        if (!currentRequestCategory || !currentRequestItem) {
+          requestMessage.className = "warning";
+          requestMessage.textContent = "Please select a category and item first.";
+          return;
+        }
+        if (isNaN(qty) || qty < 1) {
+          requestMessage.className = "warning";
+          requestMessage.textContent = "Enter a valid quantity (>=1).";
+          return;
+        }
+        const timestamp = Date.now();
+        const reqDate = new Date(timestamp).toLocaleString();
+        const newReq = {
+          category: currentRequestCategory,
+          item: currentRequestItem,
+          quantity: qty,
+          status: "Pending",
+          role: currentUserRole,
+          requestDate: reqDate,
+          timestampMs: timestamp
+        };
+        requests.push(newReq);
+        saveRequests(requests);
+        requestMessage.className = "success";
+        requestMessage.textContent = `Request submitted for ${qty}x ${currentRequestItem} on ${reqDate}.`;
+        if (currentUserRole === "heathrow") {
+          renderMyRequests();
+        }
+        renderRequestFulfillment();
+        requestQuantityInput.value = "1";
+      });
+      
+      // --- For Heathrow: Render "My Requests" ---
+      function renderMyRequests() {
+        myRequestsContainer.innerHTML = "";
+        const myReqs = requests.filter(r => r.role === currentUserRole);
+        if (myReqs.length === 0) {
+          myRequestsContainer.innerHTML = "<p>No requests submitted.</p>";
+          return;
+        }
+        myReqs.forEach(req => {
+          const entry = document.createElement("div");
+          entry.className = "request-entry";
+          entry.innerHTML = `<strong>${req.quantity}x ${req.item}</strong> (Category: ${req.category}) - Status: <span>${req.status}</span><br/><small>Requested on: ${req.requestDate}</small>`;
+          myRequestsContainer.appendChild(entry);
+        });
+        myRequestsSection.classList.remove("hidden");
+      }
+      
+      // --- Admin Panel ---
+      function renderAdminCategories() {
+        adminCategoryContainer.innerHTML = "";
+        for (let cat in inventory) {
+          const btn = document.createElement("div");
+          btn.className = "category-button";
+          btn.textContent = cat;
+          btn.addEventListener("click", () => {
+            currentAdminCategory = cat;
+            adminCategoryName.textContent = cat;
+            renderAdminTable(cat);
+            adminDetails.classList.remove("hidden");
+          });
+          adminCategoryContainer.appendChild(btn);
+        }
+      }
+      function renderAdminTable(cat) {
+        adminTableContainer.innerHTML = "";
+        const table = document.createElement("table");
+        table.className = "inventory-table";
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        const thItem = document.createElement("th");
+        thItem.textContent = "Item";
+        const thStock = document.createElement("th");
+        thStock.textContent = "Stock";
+        headerRow.appendChild(thItem);
+        headerRow.appendChild(thStock);
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+        const tbody = document.createElement("tbody");
+        for (let itemName in inventory[cat]) {
+          const tr = document.createElement("tr");
+          const tdItem = document.createElement("td");
+          tdItem.textContent = itemName;
+          const tdStock = document.createElement("td");
+          const input = document.createElement("input");
+          input.type = "number";
+          input.min = "0";
+          input.step = "1";
+          input.value = inventory[cat][itemName];
+          input.dataset.itemName = itemName;
+          tdStock.appendChild(input);
+          tr.appendChild(tdItem);
+          tr.appendChild(tdStock);
+          tbody.appendChild(tr);
+        }
+        table.appendChild(tbody);
+        adminTableContainer.appendChild(table);
+      }
+      saveAdminBtn.addEventListener("click", () => {
+        const inputs = document.querySelectorAll("#admin-table-container input");
+        inputs.forEach(input => {
+          const itemName = input.dataset.itemName;
+          const newStock = parseInt(input.value, 10);
+          if (!isNaN(newStock)) {
+            inventory[currentAdminCategory][itemName] = newStock;
+          }
+        });
+        adminMessage.className = "success";
+        adminMessage.textContent = "Inventory updated.";
+        renderHomeOverview();
+      });
+      addItemBtn.addEventListener("click", () => {
+        const newItemName = document.getElementById("new-item-name").value.trim();
+        const newItemStock = parseInt(document.getElementById("new-item-stock").value, 10);
+        adminMessage.textContent = "";
+        if (!newItemName) {
+          adminMessage.className = "warning";
+          adminMessage.textContent = "Please enter an item name.";
+          return;
+        }
+        if (isNaN(newItemStock) || newItemStock < 0) {
+          adminMessage.className = "warning";
+          adminMessage.textContent = "Enter a valid stock (>= 0).";
+          return;
+        }
+        if (inventory[currentAdminCategory][newItemName] !== undefined) {
+          adminMessage.className = "warning";
+          adminMessage.textContent = "Item already exists.";
+          return;
+        }
+        inventory[currentAdminCategory][newItemName] = newItemStock;
+        adminMessage.className = "success";
+        adminMessage.textContent = `Item '${newItemName}' added with stock ${newItemStock}.`;
+        document.getElementById("new-item-name").value = "";
+        document.getElementById("new-item-stock").value = "0";
+        renderAdminTable(currentAdminCategory);
+        renderHomeOverview();
+      });
+      
+      // --- Admin: Render Request Fulfillment ---
+      function renderRequestFulfillment() {
+        const container = document.getElementById("fulfillment-container");
+        container.innerHTML = "";
+        if (requests.length === 0) {
+          container.innerHTML = "<p>No pending requests.</p>";
+          return;
+        }
+        // Admin sees all requests.
+        requests.forEach((req, idx) => {
+          const div = document.createElement("div");
+          div.style.border = "1px solid #555";
+          div.style.padding = "0.5rem";
+          div.style.marginBottom = "0.5rem";
+          div.style.borderRadius = "4px";
+          div.innerHTML = `
+            <strong>${req.quantity}x ${req.item}</strong> (Category: ${req.category})<br/>
+            Requested on: ${req.requestDate}<br/>
+            Status: <span style="color: ${
+              req.status === "Pending" ? "var(--warning-color)" :
+              (req.status === "Accepted" ? "var(--accent-color)" : "var(--danger-color)")
+            }">${req.status}</span>
+          `;
+          if (req.status === "Pending") {
+            const acceptBtn = document.createElement("button");
+            acceptBtn.className = "btn";
+            acceptBtn.style.marginRight = "0.5rem";
+            acceptBtn.textContent = "Accept";
+            acceptBtn.addEventListener("click", () => {
+              if (inventory[req.category][req.item] < req.quantity) {
+                alert("Not enough stock to accept this request!");
+                return;
+              }
+              inventory[req.category][req.item] -= req.quantity;
+              req.status = "Accepted";
+              renderAdminTable(req.category);
+              renderHomeOverview();
+              renderRequestFulfillment();
+              if (currentUserRole === "heathrow") {
+                renderMyRequests();
+              }
+            });
+            const declineBtn = document.createElement("button");
+            declineBtn.className = "btn";
+            declineBtn.textContent = "Decline";
+            declineBtn.addEventListener("click", () => {
+              req.status = "Declined";
+              renderRequestFulfillment();
+              if (currentUserRole === "heathrow") {
+                renderMyRequests();
+              }
+            });
+            div.appendChild(acceptBtn);
+            div.appendChild(declineBtn);
+          }
+          container.appendChild(div);
+        });
+      }
+      
+      // --- For Heathrow: Render "My Requests" ---
+      function renderMyRequests() {
+        myRequestsContainer.innerHTML = "";
+        const myReqs = requests.filter(r => r.role === currentUserRole);
+        if (myReqs.length === 0) {
+          myRequestsContainer.innerHTML = "<p>No requests submitted.</p>";
+          return;
+        }
+        myReqs.forEach(req => {
+          const entry = document.createElement("div");
+          entry.className = "request-entry";
+          entry.innerHTML = `<strong>${req.quantity}x ${req.item}</strong> (Category: ${req.category}) - Status: <span>${req.status}</span><br/><small>Requested on: ${req.requestDate}</small>`;
+          myRequestsContainer.appendChild(entry);
+        });
+        myRequestsSection.classList.remove("hidden");
+      }
+      
+      // --- Sidebar Tab Switching ---
+      document.querySelectorAll(".sidebar .nav-button").forEach(btn => {
+        btn.addEventListener("click", function() {
+          const tab = btn.getAttribute("data-tab");
+          // For Heathrow, restrict admin and fulfillment access.
+          if (currentUserRole === "heathrow" && (tab === "admin" || tab === "fulfillment")) return;
+          document.querySelectorAll(".sidebar .nav-button").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          switchTab(tab);
+        });
+      });
+      function switchTab(tabName) {
+        document.querySelectorAll(".content").forEach(c => c.classList.remove("active"));
+        const activeContent = document.getElementById(tabName);
+        if (activeContent) activeContent.classList.add("active");
+        if (tabName === "fulfillment") {
+          renderRequestFulfillment();
+        }
+      }
+      
+      // --- Login Handler ---
+      loginBtn.addEventListener("click", function() {
+        const username = document.getElementById("username-input").value.trim();
+        const password = document.getElementById("password-input").value.trim();
+        const user = VALID_CREDENTIALS.find(c => c.username === username && c.password === password);
+        if (!user) {
+          loginMessage.style.color = "red";
+          loginMessage.textContent = "Invalid username or password.";
+          return;
+        }
+        currentUserRole = user.role;
+        loginScreen.style.display = "none";
+        appContent.style.display = "block";
+        // For Heathrow, restrict sidebar buttons to Request Items only.
+        document.querySelectorAll(".sidebar .nav-button").forEach(btn => {
+          const tab = btn.getAttribute("data-tab");
+          if (currentUserRole === "heathrow" && (tab === "admin" || tab === "fulfillment" || tab === "home")) {
+            btn.style.display = "none";
+          } else {
+            btn.style.display = "block";
+          }
+        });
+        // For Heathrow, default to the Request Items tab.
+        if (currentUserRole === "heathrow") {
+          switchTab("request");
+          renderRequestCategories();
+          renderMyRequests();
+        } else {
+          switchTab("home");
+          renderHomeOverview();
+          renderAdminCategories();
+          renderRequestCategories();
+        }
+      });
+      
+      // --- Logout Handler ---
+      logoutBtn.addEventListener("click", function() {
+        location.reload();
+      });
+    });
+  </script>
+</body>
+</html>
